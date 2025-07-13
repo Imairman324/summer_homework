@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高一暑期学习与德育作业管理系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f0f8ff 0%, #e6f7ff 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(120deg, #1a6dcc 0%, #0d47a1 100%);
+            color: white;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" preserveAspectRatio="none"><path d="M0,0 C50,50 150,50 200,0 L200,200 C150,150 50,150 0,200 Z" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: cover;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 25px;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 150px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: #f0f7ff;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn.active {
+            background: #1a6dcc;
+            color: white;
+        }
+        
+        .tab-btn:hover:not(.active) {
+            background: #d0e3ff;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .task-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .subject-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .subject-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            padding: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chinese { background: linear-gradient(120deg, #e91e63, #9c27b0); }
+        .math { background: linear-gradient(120deg, #3f51b5, #2196f3); }
+        .english { background: linear-gradient(120deg, #ff9800, #ff5722); }
+        .physics { background: linear-gradient(120deg, #009688, #4caf50); }
+        .chemistry { background: linear-gradient(120deg, #673ab7, #9c27b0); }
+        .geography { background: linear-gradient(120deg, #00bcd4, #03a9f4); }
+        .moral { background: linear-gradient(120deg, #ff6b6b, #ff8e53); }
+        .cross { background: linear-gradient(120deg, #795548, #ff5722); }
+        
+        .card-content {
+            padding: 20px;
+        }
+        
+        .task-list {
+            list-style: none;
+        }
+        
+        .task-item {
+            padding: 15px 0;
+            border-bottom: 1px dashed #eee;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .task-item:last-child {
+            border-bottom: none;
+        }
+        
+        .task-title {
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .task-type {
+            font-size: 0.85rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+        
+        .personal-task { background: #4caf50; }
+        .group-task { background: #ff9800; }
+        .multi-select-tag { background: #9c27b0; }
+        
+        .task-details {
+            font-size: 0.95rem;
+            color: #555;
+            padding-left: 5px;
+        }
+        
+        .deadline-date {
+            display: inline-block;
+            background: #ffebee;
+            color: #d32f2f;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .details-toggle {
+            color: #1a6dcc;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .details-toggle i {
+            transition: transform 0.3s ease;
+        }
+        
+        .details-toggle.active i {
+            transform: rotate(90deg);
+        }
+        
+        .details-content {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            border-left: 3px solid #1a6dcc;
+            display: none;
+        }
+        
+        .details-content h4 {
+            color: #1a6dcc;
+            margin-bottom: 8px;
+        }
+        
+        .details-content ul {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+        
+        .details-content li {
+            margin-bottom: 5px;
+        }
+        
+        .phase {
+            font-weight: 600;
+            color: #ff5722;
+            margin-top: 10px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        @media (max-width: 768px) {
+            .task-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .stats {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-calendar-alt"></i> 高一暑期学习与德育作业管理系统</h1>
+            <p class="subtitle">2024级高一学生暑期学习指导手册 - 学科作业与德育实践</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value">42</div>
+                    <div class="stat-label">总任务数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">24</div>
+                    <div class="stat-label">学科作业</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">18</div>
+                    <div class="stat-label">德育实践</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">关键日期</div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="academic">学科作业</button>
+            <button class="tab-btn" data-tab="moral">德育实践</button>
+            <button class="tab-btn" data-tab="all">全部任务</button>
+        </div>
+        
+        <!-- 学科作业 -->
+        <div class="tab-content active" id="academic-tab">
+            <div class="task-grid">
+                <!-- 语文 -->
+                <div class="subject-card">
+                    <div class="card-header chinese">
+                        <i class="fas fa-book"></i> 语文
+                    </div>
+                    <div class="card-content">
+                        <ul class="task-list">
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>《红楼梦》阅读+观剧任务</span>
+                                    <span class="task-type personal-task">个人</span>
+                                </div>
+                                <div class="task-details">
+                                    任选1项任务（人物小传/改写/剧本/读后感/对比分析），≥800字电子版
+                                </div>
+                                <span class="deadline-date">截止: 8月8日</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>具体要求：</h4>
+                                    <ul>
+                                        <li>阅读《红楼梦》原著，观看87版电视剧</li>
+                                        <li>从以下任务中任选其一完成：
+                                            <ul>
+                                                <li>① 人物小传</li>
+                                                <li>② 名著改写</li>
+                                                <li>③ 改编剧本（包含矛盾冲突、人物语言、舞台说明）</li>
+                                                <li>④ 读后感</li>
+                                                <li>⑤ 原著与电视剧的对比阅读</li>
+                                            </ul>
+                                        </li>
+                                        <li>字数要求均不低于800字</li>
+                                        <li>8月8日前提交电子版</li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>《老人与海》阅读任务</span>
+                                    <span class="task-type personal-task">个人</span>
+                                </div>
+                                <div class="task-details">
+                                    任选1项任务（人物小传/改写/剧本/读后感），≥800字电子版
+                                </div>
+                                <span class="deadline-date">截止: 8月15日</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>具体要求：</h4>
+                                    <ul>
+                                        <li>阅读《老人与海》中文版</li>
+                                        <li>从以下任务中任选其一完成：
+                                            <ul>
+                                                <li>① 人物小传</li>
+                                                <li>② 名著改写</li>
+                                                <li>③ 改编剧本（包含矛盾冲突、人物语言、舞台说明）</li>
+                                                <li>④ 读后感</li>
+                                            </ul>
+                                        </li>
+                                        <li>字数要求均不低于800字</li>
+                                        <li>8月15日前提交电子版</li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>其他书目PPT制作</span>
+                                    <span class="task-type personal-task">个人</span>
+                                </div>
+                                <div class="task-details">
+                                    任选《边城》《平凡的世界》《复活》中1本，制作人物分析PPT
+                                </div>
+                                <span class="deadline-date">截止: 8月22日</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>具体要求：</h4>
+                                    <ul>
+                                        <li>在除《红楼梦》《老人与海》之外的推荐书目中任选其一</li>
+                                        <li>围绕核心人物，制作PPT</li>
+                                        <li>要求图文并茂，重点突出</li>
+                                        <li>8月22日前提交电子版</li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 数学 -->
+                <div class="subject-card">
+                    <div class="card-header math">
+                        <i class="fas fa-calculator"></i> 数学
+                    </div>
+                    <div class="card-content">
+                        <ul class="task-list">
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>数学书籍阅读成果PPT</span>
+                                    <span class="task-type personal-task">个人</span>
+                                </div>
+                                <div class="task-details">
+                                    选1本书完成：阅读计划表+思维导图+读书笔记
+                                </div>
+                                <span class="deadline-date">截止: 8月15日</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>具体要求：</h4>
+                                    <ul>
+                                        <li>从以下书籍中选择一本：
+                                            <ul>
+                                                <li>《1小时漫画统计学》</li>
+                                                <li>《神奇的数学（李永乐）》</li>
+                                                <li>《怎样解题——数学思维的新方法》</li>
+                                                <li>《中学数学解题研究（第二版）》</li>
+                                                <li>《我的几何人生（丘成桐自传）》</li>
+                                            </ul>
+                                        </li>
+                                        <li>制作阅读计划表</li>
+                                        <li>完成阅读后用思维导图梳理书籍结构</li>
+                                        <li>撰写读书笔记（核心观点总结、个人感想、学科知识联系）</li>
+                                        <li>制作PPT展示阅读成果</li>
+                                        <li>8月15日前提交至"作业小管家"小程序</li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>画圆锥曲线工具制作</span>
+                                    <span class="task-type personal-task">个人</span>
+                                </div>
+                                <div class="task-details">
+                                    制作实物工具并拍摄作图视频
+                                </div>
+                                <span class="deadline-date">截止: 8月25日</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>具体要求：</h4>
+                                    <ul>
+                                        <li>预习选择性必修第一册"第三章：圆锥曲线"相关内容</li>
+                                        <li>理解椭圆和双曲线的定义</li>
+                                        <li>根据定义制作画椭圆或双曲线的工具（二选一）</li>
+                                        <li>实物展示，拍摄用工具画图的视频</li>
+                                        <li>8月25日前提交视频至"作业小管家"小程序</li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>测量建筑高度</span>
+                                    <span class="task-type group-task">小组</span>
+                                </div>
+                                <div class="task-details">
+                                    4-6人组队，设计测量方案+实地操作+提交报告
+                                </div>
+                                <span class="deadline-date">开学后展示</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>具体要求：</h4>
+                                    <ul>
+                                        <li>4-6人为一个小组</li>
+                                        <li>为家乡标志性建筑设计测量高度的方案</li>
+                                        <li>实地测量得出相关数据</li>
+                                        <li>计算建筑物高度</li>
+                                        <li>成果展示：建筑物介绍、测量方案、测量数据、小组合作照片</li>
+                                        <li>暑假期间完成，开学后在课堂上展示</li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 英语 -->
+                <div class="subject-card">
+                    <div class="card-header english">
+                        <i class="fas fa-language"></i> 英语
+                    </div>
+                    <div class="card-content">
+                        <div class="phase">第一阶段：准备与基础阅读 (7.15-7.31)</div>
+                        <ul class="task-list">
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>阅读前50%+词汇整理</span>
+                                    <span class="task-type personal-task">个人</span>
+                                </div>
+                                <div class="task-details">
+                                    完成原著前一半章节阅读，每日2-3页，整理词汇本
+                                </div>
+                                <span class="deadline-date">截止: 7月31日</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>个人任务要求：</h4>
+                                    <ul>
+                                        <li>完成《简·爱》和《鱼鹰与男孩》前一半章节阅读</li>
+                                        <li>每日阅读2-3页，标注"主词"（如"providence"）及经典句式</li>
+                                        <li>整理到英语词汇本，每周复习1次</li>
+                                    </ul>
+                                    
+                                    <h4>小组任务要求：</h4>
+                                    <ul>
+                                        <li>4-5人组队，确定小组研究主题（如"Jane Eyre's Struggle for Equality"）</li>
+                                        <li>线上会议明确分工：
+                                            <ul>
+                                                <li>1人负责时代背景调研</li>
+                                                <li>1人梳理人物关系</li>
+                                                <li>1人收集语言特色素材（修辞手法等）</li>
+                                            </ul>
+                                        </li>
+                                        <li>第一次研讨：每人分享读书笔记</li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                        
+                        <div class="phase">第二阶段：深度阅读与协作探究 (8.1-8.10)</div>
+                        <ul class="task-list">
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>全书阅读+主题概括</span>
+                                    <span class="task-type personal-task">个人</span>
+                                </div>
+                                <div class="task-details">
+                                    完成全书阅读并用80-100词概括原著主题
+                                </div>
+                                <span class="deadline-date">截止: 8月10日</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>个人任务要求：</h4>
+                                    <ul>
+                                        <li>完成全书阅读</li>
+                                        <li>用80-100词英文概括原著主题</li>
+                                        <li>选做：挑选重点场景，结合18-19世纪英国历史背景进行分析</li>
+                                    </ul>
+                                    
+                                    <h4>小组任务要求：</h4>
+                                    <ul>
+                                        <li>召开2次线上研讨会</li>
+                                        <li>2人绘制"主要角色成长轨迹"时间轴（英语）</li>
+                                        <li>分工制作全英文展示PPT：
+                                            <ul>
+                                                <li>时代背景板块</li>
+                                                <li>人物关系</li>
+                                                <li>语言赏析板块（精选5段对话分析）</li>
+                                                <li>主题板块</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                        
+                        <div class="phase">第三阶段：成果整合与展示彩排 (8.11-8.20)</div>
+                        <ul class="task-list">
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>个人展示稿准备</span>
+                                    <span class="task-type personal-task">个人</span>
+                                </div>
+                                <div class="task-details">
+                                    准备3分钟英语个人展示稿
+                                </div>
+                                <span class="deadline-date">截止: 8月20日</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>个人任务要求：</h4>
+                                    <ul>
+                                        <li>准备3分钟英语个人展示稿</li>
+                                        <li>内容：推荐所选名著的理由，结合书中最触动自己的场景</li>
+                                        <li>引用1-2句原文</li>
+                                    </ul>
+                                    
+                                    <h4>小组任务要求：</h4>
+                                    <ul>
+                                        <li>完成PPT制作，确保逻辑链：背景介绍→人物分析→语言特色→主题升华</li>
+                                        <li>插入电影片段截图辅助理解</li>
+                                        <li>线上彩排2次：模拟全英文展示流程</li>
+                                        <li>练习连读、重音等语言技巧</li>
+                                        <li>录制视频优化表达流畅度</li>
+                                        <li>分工英语撰写小组合作总结（每人承担的任务与收获）</li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>成果提交要求</span>
+                                    <span class="task-type group-task">小组</span>
+                                </div>
+                                <div class="task-details">
+                                    提交所有成果至英语老师邮箱
+                                </div>
+                                <span class="deadline-date">截止: 8月20日</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>个人成果：</h4>
+                                    <ul>
+                                        <li>英文读书笔记集（附词汇表）</li>
+                                        <li>语言特色素材（标注引用原文出处）</li>
+                                        <li>时间轴</li>
+                                    </ul>
+                                    
+                                    <h4>小组成果：</h4>
+                                    <ul>
+                                        <li>全英文PPT（含小组分工表）</li>
+                                        <li>合作总结（英文）</li>
+                                        <li>研讨照片5张（微信截图也可）</li>
+                                    </ul>
+                                    
+                                    <h4>备注：</h4>
+                                    <ul>
+                                        <li>PPT作品将进行年级评比，选出一、二、三等奖和优秀奖</li>
+                                        <li>获奖PPT将进行年级展示</li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 物理 -->
+                <div class="subject-card">
+                    <div class="card-header physics">
+                        <i class="fas fa-atom"></i> 物理
+                    </div>
+                    <div class="card-content">
+                        <ul class="task-list">
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>复习+预习（必修三）</span>
+                                    <span class="task-type personal-task">个人</span>
+                                </div>
+                                <div class="task-details">
+                                    通过国家智慧教育平台学习
+                                </div>
+                                <span class="deadline-date">暑期完成</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>具体要求：</h4>
+                                    <ul>
+                                        <li>复习本学期的薄弱知识点</li>
+                                        <li>预习必修三：《静电场》</li>
+                                        <li>完成课后习题至少两道</li>
+                                        <li>学习途径：中小学国家智慧平台 → 课程教学 → 高中 → 物理 → 人教版 → 必修1-必修3</li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>学科实践项目</span>
+                                    <span class="task-type multi-select-tag"><i class="fas fa-check-circle"></i> 多选一</span>
+                                </div>
+                                <div class="task-details">
+                                    从以下4种实践中任选1种完成
+                                </div>
+                                <span class="deadline-date">开学提交</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>选项1：制作科普视频</h4>
+                                    <ul>
+                                        <li>寻找生活中的物理现象，提出问题并进行解释</li>
+                                        <li>录制3分钟以内的解说视频</li>
+                                        <li>示例：秋千如何越荡越高？泡沫为什么在阳光下呈现彩色？</li>
+                                    </ul>
+                                    
+                                    <h4>选项2：录制物理小话剧</h4>
+                                    <ul>
+                                        <li>选择一个感兴趣的物理学史主题</li>
+                                        <li>制作小剧本</li>
+                                        <li>合作录制小话剧，以视频形式上交</li>
+                                        <li>示例：开普勒三大定律发现过程、原子物理发展史</li>
+                                    </ul>
+                                    
+                                    <h4>选项3：变废为宝</h4>
+                                    <ul>
+                                        <li>结合物理知识，利用废旧物品制作小成品或实验器材</li>
+                                        <li>示例：空气炮、自动灌溉演示、脱水机、过山车模型</li>
+                                    </ul>
+                                    
+                                    <h4>选项4：测量交通工具加速度</h4>
+                                    <ul>
+                                        <li>用多种方法测量交通工具启动或刹车时的加速度</li>
+                                        <li>要求：实验方案设计、原始数据、探究过程照片、实验报告</li>
+                                        <li>建议4-6人一组</li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 化学 -->
+                <div class="subject-card">
+                    <div class="card-header chemistry">
+                        <i class="fas fa-flask"></i> 化学
+                    </div>
+                    <div class="card-content">
+                        <ul class="task-list">
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>化学书籍阅读</span>
+                                    <span class="task-type personal-task">个人</span>
+                                </div>
+                                <div class="task-details">
+                                    阅读2本以上书籍/论文，撰写读书笔记
+                                </div>
+                                <span class="deadline-date">开学提交</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>具体要求：</h4>
+                                    <ul>
+                                        <li>从以下资料中挑选2本以上（含论文）进行阅读：
+                                            <ul>
+                                                <li>书籍：《高中化学的一百个为什么》《生物魅影》</li>
+                                                <li>论文：
+                                                    <ul>
+                                                        <li>《十二元九凤冠文物年鉴背后的材料化学、制作工艺及修复保护》</li>
+                                                        <li>《揭开西膜的化学面纱》</li>
+                                                        <li>《中国古代壁画中的化学知识及数学建议》</li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li>每本（篇）资料至少撰写2篇读书笔记</li>
+                                        <li>内容包含：核心观点总结、个人感悟、与化学知识的联系</li>
+                                        <li>成果以手写形式呈现，整理为读书笔记集</li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>制作有机物"身份证"</span>
+                                    <span class="task-type personal-task">个人</span>
+                                </div>
+                                <div class="task-details">
+                                    选取三种有机物制作"身份证"
+                                </div>
+                                <span class="deadline-date">开学提交</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>具体要求：</h4>
+                                    <ul>
+                                        <li>选取生活中三种有机物（含两种及以上官能团）</li>
+                                        <li>制作有机物"身份证"，包含：
+                                            <ul>
+                                                <li>命名（提前感知系统命名法）</li>
+                                                <li>电子式/结构式、结构简式</li>
+                                                <li>空间构型：球棍模型照片或手绘图</li>
+                                                <li>官能团</li>
+                                                <li>物理性质（状态/溶解性/密度等）</li>
+                                                <li>化学反应及反应现象</li>
+                                                <li>日常应用</li>
+                                            </ul>
+                                        </li>
+                                        <li>成果以手写+绘图/图片打印形式呈现</li>
+                                        <li>图文比例≥1.5</li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 地理 -->
+                <div class="subject-card">
+                    <div class="card-header geography">
+                        <i class="fas fa-globe-asia"></i> 地理
+                    </div>
+                    <div class="card-content">
+                        <ul class="task-list">
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>书籍阅读</span>
+                                    <span class="task-type personal-task">个人</span>
+                                </div>
+                                <div class="task-details">
+                                    阅读3本推荐书籍，挖掘身边地理现象
+                                </div>
+                                <span class="deadline-date">开学提交</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>具体要求：</h4>
+                                    <ul>
+                                        <li>推荐书目：《这里是中国1》《这里是中国2》《地理学与生活》《房龙地理》《认识生态》</li>
+                                        <li>选择其中3本必读</li>
+                                        <li>阅读中思考，挖掘身边的地理现象</li>
+                                        <li>拍照或拍摄视频做好相关说明</li>
+                                        <li>以读书笔记形式一同上交</li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>学科实践项目</span>
+                                    <span class="task-type multi-select-tag"><i class="fas fa-check-circle"></i> 多选一</span>
+                                </div>
+                                <div class="task-details">
+                                    从以下3种实践中任选1种完成（小组）
+                                </div>
+                                <span class="deadline-date">截止: 8月16日</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>选项1：气象观测</h4>
+                                    <ul>
+                                        <li>4-8人小组</li>
+                                        <li>观测不同下垫面温度（7天）</li>
+                                        <li>观测太阳视运动（7天）</li>
+                                        <li>使用"水印相机"APP拍摄记录</li>
+                                        <li>提交实践报告（含数据表、分析图表、照片）</li>
+                                    </ul>
+                                    
+                                    <h4>选项2：地理模型制作</h4>
+                                    <ul>
+                                        <li>制作地貌或月相模型（≥30×30cm）</li>
+                                        <li>材料不限，建议绿色环保</li>
+                                        <li>提交过程记录册（含5张制作步骤照片）</li>
+                                        <li>实体模型开学后上交</li>
+                                    </ul>
+                                    
+                                    <h4>选项3：地貌实地调查</h4>
+                                    <ul>
+                                        <li>调研家乡地貌类型与形成机制</li>
+                                        <li>4-6人一组，制定研究计划</li>
+                                        <li>实地考察并记录数据</li>
+                                        <li>提交实践报告（含分工、数据、结论）</li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 跨学科项目 -->
+                <div class="subject-card">
+                    <div class="card-header cross">
+                        <i class="fas fa-project-diagram"></i> 跨学科项目
+                    </div>
+                    <div class="card-content">
+                        <ul class="task-list">
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>跨学科项目选择</span>
+                                    <span class="task-type multi-select-tag"><i class="fas fa-check-circle"></i> 二选一</span>
+                                </div>
+                                <div class="task-details">
+                                    从以下2个项目中任选1个完成
+                                </div>
+                                <span class="deadline-date">开学提交</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>选项1：侨批中的历史与地理</h4>
+                                    <ul>
+                                        <li>小组项目（自由组队）</li>
+                                        <li>探究19-20世纪潮汕华侨"下南洋"的地理驱动力与空间生存策略</li>
+                                        <li>分为5个工作组：地理考据组、历史档案组、空间调查组、情境体验组、社会传播组</li>
+                                        <li>提交地图、模型、手札或短视频</li>
+                                        <li>开学后校园展览</li>
+                                    </ul>
+                                    
+                                    <h4>选项2：水果电池实验（物理+化学）</h4>
+                                    <ul>
+                                        <li>自制水果/蔬菜原电池</li>
+                                        <li>测量其电动势和内阻</li>
+                                        <li>提交实验报告和照片</li>
+                                        <li>材料：柠檬/土豆+锌/铜电极+电压表/电流表</li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 德育实践 -->
+        <div class="tab-content" id="moral-tab">
+            <div class="task-grid">
+                <!-- 职业探索 -->
+                <div class="subject-card">
+                    <div class="card-header moral">
+                        <i class="fas fa-briefcase"></i> 知行践远·盛夏职航
+                    </div>
+                    <div class="card-content">
+                        <ul class="task-list">
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>生涯人物访谈</span>
+                                    <span class="task-type personal-task">个人</span>
+                                </div>
+                                <div class="task-details">
+                                    选择感兴趣的职业，访谈职场人士
+                                </div>
+                                <span class="deadline-date">开学提交</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>具体要求：</h4>
+                                    <ul>
+                                        <li>选择自己感兴趣的职业领域</li>
+                                        <li>采用线上或线下方式寻访职场人士</li>
+                                        <li>访谈内容应包含：
+                                            <ul>
+                                                <li>职业日常工作内容</li>
+                                                <li>所需技能和知识</li>
+                                                <li>职业发展路径</li>
+                                                <li>行业前景和挑战</li>
+                                                <li>对高中生的建议</li>
+                                            </ul>
+                                        </li>
+                                        <li>完成生涯人物访谈记录表（附件一）</li>
+                                        <li>开学提交访谈记录表</li>
+                                    </ul>
+                                    <h4>访谈提示：</h4>
+                                    <ul>
+                                        <li>提前准备访谈提纲</li>
+                                        <li>尊重受访者时间，提前预约</li>
+                                        <li>访谈中做好记录或录音（需征得同意）</li>
+                                        <li>访谈后及时整理记录</li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 家乡文化 -->
+                <div class="subject-card">
+                    <div class="card-header moral">
+                        <i class="fas fa-camera"></i> 知行潮韵·盛夏探源
+                    </div>
+                    <div class="card-content">
+                        <ul class="task-list">
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>家乡文化宣传</span>
+                                    <span class="task-type personal-task">个人</span>
+                                </div>
+                                <div class="task-details">
+                                    用照片/短视频记录家乡美食美景，宣传家乡文化
+                                </div>
+                                <span class="deadline-date">开学提交</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>具体要求：</h4>
+                                    <ul>
+                                        <li>拍摄家乡美食、美景、文化场所等</li>
+                                        <li>形式可选择：
+                                            <ul>
+                                                <li>照片集（至少10张高质量照片）</li>
+                                                <li>短视频（1-3分钟，有解说或字幕）</li>
+                                                <li>图文并茂的朋友圈系列（至少3条）</li>
+                                            </ul>
+                                        </li>
+                                        <li>通过社交平台（微信、微博、抖音等）宣传家乡文化</li>
+                                        <li>开学提交作品集（电子版）</li>
+                                    </ul>
+                                    <h4>内容建议：</h4>
+                                    <ul>
+                                        <li>探访汕头老城区、历史建筑</li>
+                                        <li>记录潮汕特色美食制作过程</li>
+                                        <li>拍摄自然风光（海滩、公园等）</li>
+                                        <li>采访当地手工艺人</li>
+                                        <li>记录传统节日活动</li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 志愿服务 -->
+                <div class="subject-card">
+                    <div class="card-header moral">
+                        <i class="fas fa-hands-helping"></i> 知行传爱·盛夏暖心
+                    </div>
+                    <div class="card-content">
+                        <ul class="task-list">
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>社区志愿服务</span>
+                                    <span class="task-type personal-task">个人</span>
+                                </div>
+                                <div class="task-details">
+                                    开展各类志愿公益活动，帮助社区和特殊群体
+                                </div>
+                                <span class="deadline-date">开学提交</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>具体要求：</h4>
+                                    <ul>
+                                        <li>走进社区、福利院、敬老院等场所</li>
+                                        <li>服务对象包括：
+                                            <ul>
+                                                <li>孤儿、孤寡老人</li>
+                                                <li>困难人士</li>
+                                                <li>残障人士</li>
+                                            </ul>
+                                        </li>
+                                        <li>服务形式：
+                                            <ul>
+                                                <li>慰问陪伴</li>
+                                                <li>卫生清洁</li>
+                                                <li>生活帮扶</li>
+                                                <li>文化活动</li>
+                                            </ul>
+                                        </li>
+                                        <li>提交志愿服务过程中的照片或短视频</li>
+                                        <li>完成志愿服务表（附件二）</li>
+                                        <li>服务时长不少于8小时</li>
+                                    </ul>
+                                    <h4>活动建议：</h4>
+                                    <ul>
+                                        <li>社区环境美化活动</li>
+                                        <li>敬老院文艺表演</li>
+                                        <li>图书馆书籍整理</li>
+                                        <li>公益机构协助工作</li>
+                                        <li>环保宣传活动</li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 体育锻炼 -->
+                <div class="subject-card">
+                    <div class="card-header moral">
+                        <i class="fas fa-running"></i> 知行健体·盛夏动心
+                    </div>
+                    <div class="card-content">
+                        <ul class="task-list">
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>每日体育锻炼</span>
+                                    <span class="task-type personal-task">个人</span>
+                                </div>
+                                <div class="task-details">
+                                    每天运动一小时，掌握一项体育运动
+                                </div>
+                                <span class="deadline-date">开学提交</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>具体要求：</h4>
+                                    <ul>
+                                        <li>每天保证至少一小时的运动时间</li>
+                                        <li>学习并掌握一项新的体育运动：
+                                            <ul>
+                                                <li>游泳、篮球、羽毛球、乒乓球等</li>
+                                                <li>瑜伽、太极、舞蹈等</li>
+                                                <li>跑步、骑行、登山等户外运动</li>
+                                            </ul>
+                                        </li>
+                                        <li>可邀请家长参与亲子运动</li>
+                                        <li>录制1-2分钟视频记录运动过程</li>
+                                        <li>或展示一项运动技能（如投篮、游泳姿势等）</li>
+                                        <li>提交2张运动照片</li>
+                                    </ul>
+                                    <h4>运动建议：</h4>
+                                    <ul>
+                                        <li>制定每周运动计划表</li>
+                                        <li>尝试不同运动项目，找到自己喜爱的</li>
+                                        <li>注意运动安全，做好热身和防护</li>
+                                        <li>记录运动心得和进步</li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 劳动教育 -->
+                <div class="subject-card">
+                    <div class="card-header moral">
+                        <i class="fas fa-hands"></i> 知行精心·盛夏劳育
+                    </div>
+                    <div class="card-content">
+                        <ul class="task-list">
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>劳动实践（二选一）</span>
+                                    <span class="task-type multi-select-tag"><i class="fas fa-check-circle"></i> 多选一</span>
+                                </div>
+                                <div class="task-details">
+                                    家务劳动打卡或寻找身边最美劳动者
+                                </div>
+                                <span class="deadline-date">开学提交</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>选项1：家务劳动打卡</h4>
+                                    <ul>
+                                        <li>自主设计家务劳动打卡单</li>
+                                        <li>每周坚持打卡至少2次家务劳动</li>
+                                        <li>劳动种类不限，例如：
+                                            <ul>
+                                                <li>清洗桌椅、电风扇等家用电器</li>
+                                                <li>为家人准备一餐</li>
+                                                <li>出行路线规划和行李收纳</li>
+                                                <li>家庭大扫除</li>
+                                                <li>植物养护</li>
+                                            </ul>
+                                        </li>
+                                        <li>提交打卡记录和劳动照片</li>
+                                    </ul>
+                                    
+                                    <h4>选项2：寻找最美劳动者</h4>
+                                    <ul>
+                                        <li>寻找身边默默奉献的劳动者</li>
+                                        <li>对象包括：
+                                            <ul>
+                                                <li>环卫工人</li>
+                                                <li>社区工作者</li>
+                                                <li>快递员</li>
+                                                <li>公交司机</li>
+                                                <li>早点摊主等</li>
+                                            </ul>
+                                        </li>
+                                        <li>拍摄劳动者工作照片</li>
+                                        <li>附上简短内容说明和个人感受</li>
+                                        <li>制作成图文并茂的报告</li>
+                                    </ul>
+                                    
+                                    <h4>提交要求：</h4>
+                                    <ul>
+                                        <li>以上任务任选一项完成</li>
+                                        <li>提交电子档材料（详见附件三）</li>
+                                        <li>开学前完成</li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 致未来自己 -->
+                <div class="subject-card">
+                    <div class="card-header moral">
+                        <i class="fas fa-envelope"></i> 知行致远·盛夏逐梦
+                    </div>
+                    <div class="card-content">
+                        <ul class="task-list">
+                            <li class="task-item">
+                                <div class="task-title">
+                                    <span>致未来自己的一封信</span>
+                                    <span class="task-type personal-task">个人</span>
+                                </div>
+                                <div class="task-details">
+                                    写一封信给未来一年后的自己
+                                </div>
+                                <span class="deadline-date">开学提交</span>
+                                
+                                <div class="details-toggle">
+                                    <i class="fas fa-chevron-right"></i> 查看详细要求
+                                </div>
+                                <div class="details-content">
+                                    <h4>具体要求：</h4>
+                                    <ul>
+                                        <li>写一封信给未来一年后的自己</li>
+                                        <li>内容可以包括：
+                                            <ul>
+                                                <li>明确的目标与理想</li>
+                                                <li>对自己的期望和要求</li>
+                                                <li>对未来的规划和憧憬</li>
+                                                <li>对过往的反思与总结</li>
+                                                <li>激励自己的话语</li>
+                                            </ul>
+                                        </li>
+                                        <li>用信封装好封存</li>
+                                        <li>开学交给班主任保管</li>
+                                        <li>一年后由自己亲自开启</li>
+                                    </ul>
+                                    <h4>写作建议：</h4>
+                                    <ul>
+                                        <li>真诚面对自己，表达真实想法</li>
+                                        <li>设定具体可行的目标</li>
+                                        <li>思考如何克服当前的困难</li>
+                                        <li>表达对未来的期待</li>
+                                        <li>可以加入对自己的承诺</li>
+                                    </ul>
+                                    <h4>温馨提示：</h4>
+                                    <p>这封信既是一份对未来一年行动的周密计划，又承载着无数的梦想与希望。我们坚信，只要付出时间和汗水，信中所写的一切都将逐步变为现实。</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>华南师范大学附属滨江实验学校学生处 · 2025年7月4日</p>
+            <p>注：德育实践作业是落实立德树人根本任务的重要途径，请同学们认真完成</p>
+            <p style="margin-top: 15px; font-size: 0.85rem; color: #888;">优秀德育实践作业将通过微信平台展示，并组织评选奖励</p>
+        </footer>
+    </div>
+
+    <script>
+        // 详情切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggles = document.querySelectorAll('.details-toggle');
+            
+            toggles.forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const content = this.nextElementSibling;
+                    const icon = this.querySelector('i');
+                    
+                    // 切换显示状态
+                    if (content.style.display === 'block') {
+                        content.style.display = 'none';
+                        this.classList.remove('active');
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        content.style.display = 'block';
+                        this.classList.add('active');
+                        icon.style.transform = 'rotate(90deg)';
+                    }
+                });
+            });
+            
+            // 选项卡切换功能
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // 更新按钮状态
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // 更新内容显示
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${tabId}-tab`) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
